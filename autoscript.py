@@ -1,24 +1,49 @@
 # This library needs to be installed
 import pyautogui as pyag
 
-# Seconds of pause between each command
-STD_DELAY = 0.1
+"""
+For show-code and compile commands:
+Both of these can include multiple file names, e.g.
+`show-code progname.cpp libraryname.h libraryname.cpp`
+"""
+SHOW_CODE_COMMAND = "show-code demo_lab.cpp"
+COMPILE_COMMAND = "CPP demo_lab.cpp"
 
-# Delay after CPP command
-# CPP can be a bit slow, so I set it to be a bit longer.
-# If you find it to be too slow, feel free to shorten it.
-CPP_DELAY = 10
+"""
+Delays:
 
-# Delay after show-code command.
-# Again, feel free to shorten this if it's too long.
-SHOW_CODE_DELAY = 7.5
+Adjust these as desired. If they are too short, then
+the commands may be typed too quickly for the server
+to process them. It is safer to have these be larger,
+but that also makes the script take a longer time.
 
-# Countdown before the script starts typing
-COUNTDOWN = 5
+These must all be non-negative numeric values,
+and COUNTDOWN must be a non-negative integer.
 
-# This array handles the test runs of your program.
-# Type your inputs directly into the array.
-# Each string should be separated by a comma.
+All of these are in seconds, not milliseconds.
+"""
+STD_DELAY = 0.25        # Seconds of pause between each command
+COMPILE_DELAY = 10      # Pause after typing compile command
+SHOW_CODE_DELAY = 7.5   # Pause after typing show-code command
+COUNTDOWN = 5           # Countdown before starting script
+
+"""
+File names:
+
+Leave these as empty strings if not relevant.
+An empty string is just two empty quotes: ""
+"""
+INFO_FILE = "demo_lab.info"     
+TPQ_FILE = "demo_lab.tpq"
+DESIRED_PDF_NAME = "Last-First-DemoLab"
+
+"""
+Test Run Inputs:
+
+This array handles the test runs of your program.
+Type your inputs directly into the array.
+Each string should be separated by a comma.
+"""
 TEST_RUN_INPUTS = [
     # I've added some bash comments to demonstrate
     # that you can label the test runs of your program,
@@ -31,7 +56,7 @@ TEST_RUN_INPUTS = [
     "3",
 
     # Run 2
-    "# Run 2: Negative and positive integer",
+    "# Run 2: Negative and positive integers",
     "./demo_lab.out",
     "-15",
     "4",
@@ -43,6 +68,8 @@ TEST_RUN_INPUTS = [
     "-3"
 ]
 
+# No need to edit anything below. 
+# All settings can be adjusted by editing the constants above.
 
 def write_ln(line, delay=STD_DELAY):
     pyag.write(line)
@@ -70,34 +97,29 @@ def script_setup():
     write_ln("script")
     write_ln("pwd")
     
-    # Change the three lines below to include 
-    # the file names for your program
+    if INFO_FILE.strip():
+        write_ln(f"cat {INFO_FILE}") 
 
-    write_ln("cat demo_lab.info") 
+    if SHOW_CODE_COMMAND.strip():
+        write_ln(SHOW_CODE_COMMAND, SHOW_CODE_DELAY) 
 
-    # If you have multiple files, you can type
-    # them all in the same show-code command, i.e.
-    # show-code demo_lab.cpp library_name.h library_name.cpp
-    write_ln("show-code demo_lab.cpp", SHOW_CODE_DELAY) 
-
-    write_ln("CPP demo_lab.cpp", CPP_DELAY)
+    if COMPILE_COMMAND.strip():
+        write_ln(COMPILE_COMMAND, COMPILE_DELAY)
 
 
-def script_body():
+def script_test_runs():
     for line in TEST_RUN_INPUTS:
         write_ln(line)
 
 
 def script_end():
-    # Change this line to include your tpq file
-    # If you don't have a tpq, you can 
-    # comment it out with a `#`
-    write_ln("cat demo_lab.tpq") 
+    if TPQ_FILE.strip():
+        write_ln(f"cat {TPQ_FILE}") 
 
     write_ln("exit")
 
-    # Change this line to include your desired PDF name
-    write_ln("script-print Last-First-DemoLab")
+    if DESIRED_PDF_NAME.strip():
+        write_ln(f"script-print {DESIRED_PDF_NAME}")
 
     print("Script finished!\n")
 
@@ -105,10 +127,9 @@ def script_end():
 def main():
     script_countdown()
     script_setup()
-    script_body()
+    script_test_runs()
     script_end()
 
 
-# Entry point of the script
 if __name__ == "__main__":
     main()
